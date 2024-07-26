@@ -16,11 +16,17 @@ import itertools
 #                                                       -Emil Poiesz    #
 #########################################################################
 
-# The default is the majority function, any boolean function can be substituted
+# Boolean functions
 def majority(x):
-        return 1 if sum(x) > 0 else -1
+    assert len(x) % 2 == 1
+    return 1 if sum(x) > 0 else -1
 
-def fourer_walsh_transform(input_list, boolean_function=majority):
+def minority(x):
+    assert len(x) % 2 == 1
+    return 1 if sum(x) < 0 else -1
+
+#Fourier-Walsh transform
+def fourer_walsh_transform(input_list, boolean_function):
     n=len(input_list)
     inputs = list(itertools.product([1,-1], repeat=n))
     bool_func_values = [boolean_function(list(input_values)) for input_values in inputs]
@@ -53,30 +59,43 @@ def calculate_fourier_welsh(coefficients, input):
     value_str += f' = {value}'
     return value, value_str
 
-
+#Conversions
 def to_bool(inputs, elements):
     return [1 if x == elements[0] else -1 for x in inputs]
 
 def to_outputs(value, elements):
     return elements[0] if value == 1.0 else elements[1]
 
-print()
-print('This python program comutes the output of a boolean function using a Fourier-Walsh transform.')
-print('Read more here: https://en.wikipedia.org/wiki/Walsh_function\n \n')
-print('The default boolean function is the majority function.')
-print('Maj([T,F,T]) = T \n \n') 
-print('Please enter a comma-seperated list containing only two distinct elements.')
-print('Example: x,y,x,x,y \n')
-user_input = input('To exit type "0" \n')
+#Program output
+boolean_function_names = ['majority']
 
+print()
+print('This python program comutes the output of any boolean function using a Fourier-Walsh transform.')
+print('Read more here: https://en.wikipedia.org/wiki/Walsh_function\n \n')
+print('You can choose between the following boolean functions:')
+print('majority => majority([T,F,T]) = T \n') 
+
+print('Please type the boolean function you wish to use. (Default is "majority")')
+
+user_input = input('To exit type "0" \n')
 while user_input != "0":
+    
+    if user_input == '': boolean_function = 'majority'
+    elif user_input not in boolean_function_names: 
+        print('That is not a valid boolean function.')
+        print('Please type the boolean function you wish to use. (Default is "majority")')
+        user_input = input('To exit type "0" \n')
+        continue
+    else: boolean_function = user_input
+
+    print('Please enter a comma-seperated list containing only two distinct elements.')
+    print('Example: x,y,x,x,y \n')
     user_input = list(user_input.split(','))
-    if len(user_input) % 2 == 0: print('The list needs to have an odd number of elements'); continue
     elements = list(dict.fromkeys(user_input))
     if len(elements) > 2: print('The list must not contain more than two distinct elements.'); continue
 
     boolean_inputs = to_bool(user_input, elements)
-    output, _ = fourer_walsh_transform(boolean_inputs)
+    output, _ = fourer_walsh_transform(boolean_inputs, boolean_function)
     print(f'The majority element is {to_outputs(output, elements)}')
 
     user_input = input('\nTo exit, type "0", or try a new list: \n')
