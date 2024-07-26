@@ -73,13 +73,14 @@ print()
 print('This python program comutes the output of any boolean function using a Fourier-Walsh transform.')
 print('Read more here: https://en.wikipedia.org/wiki/Walsh_function\n \n')
 print('You can choose between the following boolean functions:')
-print('majority => majority([T,F,T]) = T \n') 
+print('majority => majority([T,F,T]) = T') 
+print('minority => minority([T,F,T]) = F \n') 
 
 print('Please type the boolean function you wish to use. (Default is "majority")')
 
 user_input = input('To exit type "0" \n')
 while user_input != "0":
-    
+
     if user_input == '': boolean_function = 'majority'
     elif user_input not in boolean_function_names: 
         print('That is not a valid boolean function.')
