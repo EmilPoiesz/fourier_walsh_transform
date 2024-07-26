@@ -100,6 +100,6 @@ while user_input != "0":
 
     boolean_inputs = to_bool(user_input, elements)
     output, _ = fourer_walsh_transform(boolean_inputs, boolean_function_dict[boolean_function])
-    print(f'The majority element is {to_outputs(output, elements)}')
+    print(f'The answer is {to_outputs(output, elements)}')
 
     user_input = input('\nTo exit, type "0", or try again. Which boolean function do you wish to use? \n')
