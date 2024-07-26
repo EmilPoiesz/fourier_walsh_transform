@@ -16,17 +16,17 @@ import itertools
 #                                                       -Emil Poiesz    #
 #########################################################################
 
-def fourer_walsh_transform(input_list):
+# The default is the majority function, any boolean function can be substituted
+def majority(x):
+        return 1 if sum(x) > 0 else -1
+
+def fourer_walsh_transform(input_list, boolean_function=majority):
     n=len(input_list)
     inputs = list(itertools.product([1,-1], repeat=n))
     bool_func_values = [boolean_function(list(input_values)) for input_values in inputs]
     coefficients = fourier_coefficients(n, inputs, bool_func_values)
     
     return calculate_fourier_welsh(coefficients, input_list)
-
-# The default is the majority function, any boolean function can be substituted
-def boolean_function(x):
-        return 1 if sum(x) > 0 else -1
 
 def fourier_coefficients(n, inputs, bool_func_values):
     coefficients = {}
