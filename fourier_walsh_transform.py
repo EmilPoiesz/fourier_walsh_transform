@@ -16,6 +16,45 @@ import itertools
 #                                                       -Emil Poiesz    #
 #########################################################################
 
+def main():
+    #Program output
+    boolean_function_dict ={
+        'majority': majority,
+        'minority': minority
+    }
+
+    print()
+    print('This python program comutes the output of any boolean function using a Fourier-Walsh transform.')
+    print('Read more here: https://en.wikipedia.org/wiki/Walsh_function\n \n')
+    print('You can choose between the following boolean functions:')
+    print('majority => majority([T,F,T]) = T') 
+    print('minority => minority([T,F,T]) = F \n') 
+
+    print('Please type the boolean function you wish to use. (Default is "majority")')
+
+    user_input = input('To exit type "0" \n')
+    while user_input != "0":
+
+        if user_input == '': boolean_function = 'majority'
+        elif user_input not in boolean_function_dict: 
+            print('That is not a valid boolean function.')
+            print('Please type the boolean function you wish to use. (Default is "majority")')
+            user_input = input('To exit type "0" \n')
+            continue
+        else: boolean_function = user_input
+
+        print('Please enter a comma-seperated list containing only two distinct elements.')
+        user_input = input('Example: x,y,x,x,y \n')
+        user_input = list(user_input.split(','))
+        elements = list(dict.fromkeys(user_input))
+        if len(elements) > 2: print('The list must not contain more than two distinct elements.'); continue
+
+        boolean_inputs = to_bool(user_input, elements)
+        output, _ = fourer_walsh_transform(boolean_inputs, boolean_function_dict[boolean_function])
+        print(f'The answer is {to_outputs(output, elements)}')
+
+        user_input = input('\nTo exit, type "0", or try again. Which boolean function do you wish to use? \n')
+
 # Boolean functions
 def majority(x):
     assert len(x) % 2 == 1
@@ -66,40 +105,5 @@ def to_bool(inputs, elements):
 def to_outputs(value, elements):
     return elements[0] if value == 1.0 else elements[1]
 
-#Program output
-boolean_function_dict ={
-    'majority': majority,
-    'minority': minority
-}
-
-print()
-print('This python program comutes the output of any boolean function using a Fourier-Walsh transform.')
-print('Read more here: https://en.wikipedia.org/wiki/Walsh_function\n \n')
-print('You can choose between the following boolean functions:')
-print('majority => majority([T,F,T]) = T') 
-print('minority => minority([T,F,T]) = F \n') 
-
-print('Please type the boolean function you wish to use. (Default is "majority")')
-
-user_input = input('To exit type "0" \n')
-while user_input != "0":
-
-    if user_input == '': boolean_function = 'majority'
-    elif user_input not in boolean_function_dict: 
-        print('That is not a valid boolean function.')
-        print('Please type the boolean function you wish to use. (Default is "majority")')
-        user_input = input('To exit type "0" \n')
-        continue
-    else: boolean_function = user_input
-
-    print('Please enter a comma-seperated list containing only two distinct elements.')
-    user_input = input('Example: x,y,x,x,y \n')
-    user_input = list(user_input.split(','))
-    elements = list(dict.fromkeys(user_input))
-    if len(elements) > 2: print('The list must not contain more than two distinct elements.'); continue
-
-    boolean_inputs = to_bool(user_input, elements)
-    output, _ = fourer_walsh_transform(boolean_inputs, boolean_function_dict[boolean_function])
-    print(f'The answer is {to_outputs(output, elements)}')
-
-    user_input = input('\nTo exit, type "0", or try again. Which boolean function do you wish to use? \n')
+if __name__ == "__main__":
+    main()
