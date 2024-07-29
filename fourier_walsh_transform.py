@@ -50,8 +50,9 @@ def main():
         if len(elements) > 2: print('The list must not contain more than two distinct elements.'); continue
 
         boolean_inputs = to_bool(user_input, elements)
-        output, _ = fourer_walsh_transform(boolean_inputs, boolean_function_dict[boolean_function])
+        output, output_str, value_str = fourer_walsh_transform(boolean_inputs, boolean_function_dict[boolean_function])
         print(f'The answer is {to_outputs(output, elements)}')
+        print(f'The formula is: {output_str}')
 
         user_input = input('\nTo exit, type "0", or try again. Which boolean function do you wish to use? \n')
 
@@ -69,18 +70,29 @@ def fourer_walsh_transform(input_list, boolean_function):
     n=len(input_list)
     inputs = list(itertools.product([1,-1], repeat=n))
     bool_func_values = [boolean_function(list(input_values)) for input_values in inputs]
-    coefficients = fourier_coefficients(n, inputs, bool_func_values)
-    
-    return calculate_fourier_welsh(coefficients, input_list)
+    coefficients, unique_coefficients = fourier_coefficients(n, inputs, bool_func_values)
+    output_str = ""
+    for i, coefficient in enumerate(unique_coefficients):
+        if unique_coefficients[coefficient] == 0.0: continue
+        monomial = "".join([f'X{n}' for n in range(1, i+1)])
+        output_str += f" {unique_coefficients[coefficient]}\u03A3({monomial}) +"
+    output_str = output_str[:-2]
+    output, value_str = calculate_fourier_welsh(coefficients, input_list)
+
+    return output, output_str, value_str
 
 def fourier_coefficients(n, inputs, bool_func_values):
     coefficients = {}
-    for subset in itertools.product([0,1], repeat=n):
+    unique_coefficients = {}
+    boolean_products = itertools.product([0,1], repeat=n)
+    for subset in boolean_products:
         subset = np.array(subset)
         subset_products = np.prod(np.power(inputs, subset), axis=1)
         coefficient = np.mean(subset_products * bool_func_values)
         coefficients[tuple(subset)] = coefficient
-    return coefficients
+        if sum(subset) not in unique_coefficients.keys():
+            unique_coefficients[sum(subset)] = coefficient
+    return coefficients, unique_coefficients
 
 def calculate_fourier_welsh(coefficients, input):
     value = 0
