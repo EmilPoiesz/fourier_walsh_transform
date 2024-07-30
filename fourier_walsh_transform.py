@@ -23,14 +23,14 @@ def main(args):
     print('Read more here: https://en.wikipedia.org/wiki/Walsh_function\n \n')
     print('You can choose between the following boolean functions:')
     print('majority => majority([T,F,T]) = T') 
-    print('minority => minority([T,F,T]) = F \n') 
+    print('minority => minority([T,F,T]) = F') 
+    print('ratio    => ratio([T,F,T]) = 0.66')
 
     print('Please type the boolean function you wish to use. (Default is "majority")')
 
     user_input = input('To exit type "0" \n')
     
     while user_input != "0":
-
         if user_input == '': boolean_function = 'majority'
         else: boolean_function = user_input
 
@@ -39,14 +39,17 @@ def main(args):
         user_input = list(user_input.split(','))
         elements = list(dict.fromkeys(user_input))
 
-        if not verify_inputs(boolean_function, elements):
+        if not validate_inputs(boolean_function, elements):
             print('Please type the boolean function you wish to use. (Default is "majority")') 
             user_input = input('To exit type "0" \n')
             continue
+        
+        if boolean_function in [majority, minority]: output_conversion = True
+        else: output_conversion = args.output_conversion
 
         boolean_inputs = to_bool(user_input, elements)
         output, output_str, _ = fourer_walsh_transform(boolean_inputs, boolean_function_dict[boolean_function])
-        if args.output_conversion: output = to_outputs(output, elements)
+        if output_conversion: output = to_outputs(output, elements)
         print(f'\nThe answer is {output}')
         if args.verbose: print(f'The formula is: {output_str}')
 
@@ -55,13 +58,17 @@ def main(args):
 # Boolean functions
 def majority(x):
     assert len(x) % 2 == 1
-    args.output_conversion = True
     return 1 if sum(x) > 0 else -1
 
 def minority(x):
     assert len(x) % 2 == 1
-    args.output_conversion = True
     return 1 if sum(x) < 0 else -1
+
+def ratio(x):
+    elements = list(dict.fromkeys(x))
+    if len(elements) == 1: return 1.0
+    a, b = elements
+    return x.count(a) / len(x)
 
 #Fourier-Walsh transform
 def fourer_walsh_transform(input_list, boolean_function):
@@ -122,7 +129,7 @@ def to_bool(inputs, elements):
 def to_outputs(value, elements):
     return elements[0] if value == 1.0 else elements[1]
 
-def verify_inputs(boolean_function, elements):
+def validate_inputs(boolean_function, elements):
     if boolean_function not in boolean_function_dict: 
         print('That is not a valid boolean function.')
         return False
@@ -141,7 +148,8 @@ if __name__ == "__main__":
 
     boolean_function_dict ={
         'majority': majority,
-        'minority': minority
+        'minority': minority,
+        'ratio'   : ratio
     }
 
     args = parser.parse_args()
