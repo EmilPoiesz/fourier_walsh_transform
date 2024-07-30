@@ -1,5 +1,6 @@
 import numpy as np
 import itertools
+import argparse
 
 #########################################################################
 #                                                                       #
@@ -16,8 +17,7 @@ import itertools
 #                                                       -Emil Poiesz    #
 #########################################################################
 
-def main():
-    #Program output
+def main(args):
     boolean_function_dict ={
         'majority': majority,
         'minority': minority
@@ -33,6 +33,7 @@ def main():
     print('Please type the boolean function you wish to use. (Default is "majority")')
 
     user_input = input('To exit type "0" \n')
+    
     while user_input != "0":
 
         if user_input == '': boolean_function = 'majority'
@@ -43,16 +44,16 @@ def main():
             continue
         else: boolean_function = user_input
 
-        print('Please enter a comma-seperated list containing only two distinct elements.')
+        print('Please enter a comma-seperated list containing only two distinct elements.\n')
         user_input = input('Example: x,y,x,x,y \n')
         user_input = list(user_input.split(','))
         elements = list(dict.fromkeys(user_input))
         if len(elements) > 2: print('The list must not contain more than two distinct elements.'); continue
 
         boolean_inputs = to_bool(user_input, elements)
-        output, output_str, value_str = fourer_walsh_transform(boolean_inputs, boolean_function_dict[boolean_function])
-        print(f'The answer is {to_outputs(output, elements)}')
-        print(f'The formula is: {output_str}')
+        output, output_str, _ = fourer_walsh_transform(boolean_inputs, boolean_function_dict[boolean_function])
+        print(f'\nThe answer is {to_outputs(output, elements)}')
+        if args.verbose: print(f'The formula is: {output_str}')
 
         user_input = input('\nTo exit, type "0", or try again. Which boolean function do you wish to use? \n')
 
@@ -67,10 +68,12 @@ def minority(x):
 
 #Fourier-Walsh transform
 def fourer_walsh_transform(input_list, boolean_function):
-    n=len(input_list)
+    
+    n = len(input_list)
     inputs = list(itertools.product([1,-1], repeat=n))
     bool_func_values = [boolean_function(list(input_values)) for input_values in inputs]
     coefficients, unique_coefficients = fourier_coefficients(n, inputs, bool_func_values)
+    
     output_str = ""
     for i, coefficient in enumerate(unique_coefficients):
         if unique_coefficients[coefficient] == 0.0: continue
@@ -85,6 +88,7 @@ def fourier_coefficients(n, inputs, bool_func_values):
     coefficients = {}
     unique_coefficients = {}
     boolean_products = itertools.product([0,1], repeat=n)
+    
     for subset in boolean_products:
         subset = np.array(subset)
         subset_products = np.prod(np.power(inputs, subset), axis=1)
@@ -92,15 +96,18 @@ def fourier_coefficients(n, inputs, bool_func_values):
         coefficients[tuple(subset)] = coefficient
         if sum(subset) not in unique_coefficients.keys():
             unique_coefficients[sum(subset)] = coefficient
+
     return coefficients, unique_coefficients
 
 def calculate_fourier_welsh(coefficients, input):
     value = 0
     value_str = 'f(X) = '
+    
     for subset, coefficient in coefficients.items():
-        #is the subset product 1 or -1? 
+ 
         subset_prod = np.prod([input[i] if subset[i] == 1 else 1 for i in range(len(input))])
         value += subset_prod * coefficient
+
         if coefficient == 0.0: continue
         if subset_prod == -1.0:
             value_str += f'({subset_prod})*{coefficient} + '
@@ -108,6 +115,7 @@ def calculate_fourier_welsh(coefficients, input):
             value_str += f'{subset_prod}*{coefficient} + '
     value_str = value_str[:-3]
     value_str += f' = {value}'
+    
     return value, value_str
 
 #Conversions
@@ -118,4 +126,8 @@ def to_outputs(value, elements):
     return elements[0] if value == 1.0 else elements[1]
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-v', '--verbose', action='store_true')
+
+    args = parser.parse_args()
+    main(args)
