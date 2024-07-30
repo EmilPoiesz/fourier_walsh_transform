@@ -19,7 +19,6 @@ import argparse
 
 def main(args):
 
-    print()
     print('This python program comutes the output of any boolean function using a Fourier-Walsh transform.')
     print('Read more here: https://en.wikipedia.org/wiki/Walsh_function\n \n')
     print('You can choose between the following boolean functions:')
@@ -47,7 +46,8 @@ def main(args):
 
         boolean_inputs = to_bool(user_input, elements)
         output, output_str, _ = fourer_walsh_transform(boolean_inputs, boolean_function_dict[boolean_function])
-        print(f'\nThe answer is {to_outputs(output, elements)}')
+        if args.output_conversion: output = to_outputs(output, elements)
+        print(f'\nThe answer is {output}')
         if args.verbose: print(f'The formula is: {output_str}')
 
         user_input = input('\nTo exit, type "0", or try again. Which boolean function do you wish to use? \n')
@@ -55,10 +55,12 @@ def main(args):
 # Boolean functions
 def majority(x):
     assert len(x) % 2 == 1
+    args.output_conversion = True
     return 1 if sum(x) > 0 else -1
 
 def minority(x):
     assert len(x) % 2 == 1
+    args.output_conversion = True
     return 1 if sum(x) < 0 else -1
 
 #Fourier-Walsh transform
@@ -113,7 +115,7 @@ def calculate_fourier_welsh(coefficients, input):
     
     return value, value_str
 
-#Conversions
+# Fourier-Walsh transform needs the boolean values to be interpreted as 1 or -1
 def to_bool(inputs, elements):
     return [1 if x == elements[0] else -1 for x in inputs]
 
@@ -134,7 +136,8 @@ def verify_inputs(boolean_function, elements):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-v', '--verbose', action='store_true')
+    parser.add_argument('-v', '--verbose', action='store_true', help='Output verbosity')
+    parser.add_argument('-o', '--output_conversion', action='store_true', help='Output conversion to original values')
 
     boolean_function_dict ={
         'majority': majority,
