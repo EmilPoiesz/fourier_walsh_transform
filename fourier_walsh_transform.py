@@ -20,12 +20,13 @@ import argparse
 def main(args):
 
     print('This python program comutes the output of any boolean function using a Fourier-Walsh transform.')
-    print('Read more here: https://en.wikipedia.org/wiki/Walsh_function\n \n')
+    print('Read more here: https://en.wikipedia.org/wiki/Walsh_function')
+    print()
+    print()
     print('You can choose between the following boolean functions:')
     print('majority => majority([T,F,T]) = T') 
     print('minority => minority([T,F,T]) = F') 
-    print('ratio    => ratio([T,F,T]) = 0.66')
-
+    print('ratio    => ratio([T,F,T,T])  = 0.75')
     print('Please type the boolean function you wish to use. (Default is "majority")')
 
     user_input = input('To exit type "0" \n')
@@ -43,15 +44,9 @@ def main(args):
             print('Please type the boolean function you wish to use. (Default is "majority")') 
             user_input = input('To exit type "0" \n')
             continue
-        
-        if boolean_function in [majority, minority]: output_conversion = True
-        else: output_conversion = args.output_conversion
 
-        boolean_inputs = to_bool(user_input, elements)
-        output, output_str, _ = fourer_walsh_transform(boolean_inputs, boolean_function_dict[boolean_function])
-        if output_conversion: output = to_outputs(output, elements)
-        print(f'\nThe answer is {output}')
-        if args.verbose: print(f'The formula is: {output_str}')
+        output = fourer_walsh_transform(user_input, boolean_function_dict[boolean_function])
+        print(output)
 
         user_input = input('\nTo exit, type "0", or try again. Which boolean function do you wish to use? \n')
 
@@ -71,56 +66,39 @@ def ratio(x):
     return x.count(a) / len(x)
 
 #Fourier-Walsh transform
-def fourer_walsh_transform(input_list, boolean_function):
+def fourer_walsh_transform(user_input, boolean_function):
     
-    n = len(input_list)
-    inputs = list(itertools.product([1,-1], repeat=n))
+    input_list = to_bool(user_input, list(dict.fromkeys(user_input)))
+    inputs = list(itertools.product([1,-1], repeat=len(input_list)))
     bool_func_values = [boolean_function(list(input_values)) for input_values in inputs]
-    coefficients, unique_coefficients = fourier_coefficients(n, inputs, bool_func_values)
+    coefficients = fourier_coefficients(inputs, bool_func_values)
+
+    result = 0
+    for subset, coefficient in coefficients.items():
+        subset_prod = np.prod([input_list[i] if subset[i] == 1 else 1 for i in range(len(input_list))])
+        result += subset_prod * coefficient
+
+    output_conversion = args.output_conversion
+    if boolean_function in [majority, minority]: output_conversion = True
+    if output_conversion: result = to_outputs(result, list(dict.fromkeys(user_input)))
     
-    output_str = ""
-    for i, coefficient in enumerate(unique_coefficients):
-        if unique_coefficients[coefficient] == 0.0: continue
-        monomial = "".join([f'X{n}' for n in range(1, i+1)])
-        output_str += f" {unique_coefficients[coefficient]}\u03A3({monomial}) +"
-    output_str = output_str[:-2]
-    output, value_str = calculate_fourier_welsh(coefficients, input_list)
+    result = f'\nThe answer is {result}'
+    if args.verbose: result += f'\nThe formula is: {formula_string_builder(coefficients)}'
 
-    return output, output_str, value_str
+    return result
 
-def fourier_coefficients(n, inputs, bool_func_values):
+
+def fourier_coefficients(inputs, bool_func_values):
     coefficients = {}
-    unique_coefficients = {}
-    boolean_products = itertools.product([0,1], repeat=n)
+    boolean_products = itertools.product([0,1], repeat=len(inputs[0]))
     
     for subset in boolean_products:
         subset = np.array(subset)
         subset_products = np.prod(np.power(inputs, subset), axis=1)
         coefficient = np.mean(subset_products * bool_func_values)
         coefficients[tuple(subset)] = coefficient
-        if sum(subset) not in unique_coefficients.keys():
-            unique_coefficients[sum(subset)] = coefficient
 
-    return coefficients, unique_coefficients
-
-def calculate_fourier_welsh(coefficients, input):
-    value = 0
-    value_str = 'f(X) = '
-    
-    for subset, coefficient in coefficients.items():
- 
-        subset_prod = np.prod([input[i] if subset[i] == 1 else 1 for i in range(len(input))])
-        value += subset_prod * coefficient
-
-        if coefficient == 0.0: continue
-        if subset_prod == -1.0:
-            value_str += f'({subset_prod})*{coefficient} + '
-        else:
-            value_str += f'{subset_prod}*{coefficient} + '
-    value_str = value_str[:-3]
-    value_str += f' = {value}'
-    
-    return value, value_str
+    return coefficients
 
 # Fourier-Walsh transform needs the boolean values to be interpreted as 1 or -1
 def to_bool(inputs, elements):
@@ -138,6 +116,22 @@ def validate_inputs(boolean_function, elements):
         return False
     
     return True
+
+def formula_string_builder(coefficients):
+    
+    unique_coefficients = {}
+    for subset in coefficients.keys():
+        if sum(subset) not in unique_coefficients.keys():
+            unique_coefficients[sum(subset)] = coefficients[subset]
+
+    output_str = ""
+    for i, coefficient in enumerate(unique_coefficients):
+        if unique_coefficients[coefficient] == 0.0: continue
+        monomial = "".join([f'X{n}' for n in range(1, i+1)])
+        output_str += f" {unique_coefficients[coefficient]}\u03A3({monomial}) +"
+    output_str = output_str[:-2]
+
+    return output_str
 
 
 if __name__ == "__main__":
