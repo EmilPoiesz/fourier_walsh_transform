@@ -27,6 +27,7 @@ def main(args):
     print('majority => majority([T,F,T]) = T') 
     print('minority => minority([T,F,T]) = F') 
     print('ratio    => ratio([T,F,T,T])  = 0.75')
+    print('weighted sum => weighted_sum([T,F,T]) = #T + 2#F = 4')
     print('Please type the boolean function you wish to use. (Default is "majority")')
 
     user_input = input('To exit type "0" \n')
@@ -62,8 +63,15 @@ def minority(x):
 def ratio(x):
     elements = list(dict.fromkeys(x))
     if len(elements) == 1: return 1.0
-    a, b = elements
+    a, _ = elements
     return x.count(a) / len(x)
+
+def weighted_sum(x):
+    elements = list(dict.fromkeys(x))
+    if len(elements) == 1: return sum(x)
+    a, b = elements
+    return x.count(a) + (2*x.count(b))
+    
 
 #Fourier-Walsh transform
 def fourer_walsh_transform(user_input, boolean_function):
@@ -141,9 +149,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     boolean_function_dict ={
-        'majority': majority,
-        'minority': minority,
-        'ratio'   : ratio
+        'majority'    : majority,
+        'minority'    : minority,
+        'ratio'       : ratio,
+        'weighted sum': weighted_sum
     }
     
     main(args)
