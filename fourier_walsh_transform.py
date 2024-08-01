@@ -43,8 +43,9 @@ def main(args):
             print('Please type the boolean function you wish to use. (Default is "majority")') 
             user_input = input('To exit type "0" \n')
             continue
-
-        output = fourer_walsh_transform(user_input, boolean_function_dict[boolean_function])
+        
+        boolean_function = boolean_function_dict[boolean_function]
+        output = fourer_walsh_transform(user_input, boolean_function)
         print(output)
 
         user_input = input('\nTo exit, type "0", or try again. Which boolean function do you wish to use? \n')
@@ -67,16 +68,16 @@ def ratio(x):
 #Fourier-Walsh transform
 def fourer_walsh_transform(user_input, boolean_function):
     
-    input_length = len(user_input)
-    converted_input = to_bool(user_input, list(dict.fromkeys(user_input)))
-    inputs_ = list(itertools.product([1,-1], repeat=input_length))
-    bool_func_values = [boolean_function(list(input_values)) for input_values in inputs_]
-    coefficients = fourier_coefficients(inputs_, bool_func_values)
+    input_length        = len(user_input)
+    input_permutations  = list(itertools.product([1,-1], repeat=input_length))
+    permutation_results = [boolean_function(list(inputs)) for inputs in input_permutations]
+    coefficients        = fourier_coefficients(input_permutations, permutation_results)
 
-    result = 0
-    for subset, coefficient in coefficients.items():
-        subset_prod = np.prod([converted_input[i] if subset[i] == 1 else 1 for i in range(input_length)])
-        result += subset_prod * coefficient
+    user_input = to_bool(user_input, list(dict.fromkeys(user_input))) #Convert input to {-1, 1}
+    result     = 0
+    for permutation, coefficient in coefficients.items():
+        permutation_sign = np.prod([user_input[i] if permutation[i] == 1 else 1 for i in range(input_length)])
+        result += permutation_sign * coefficient
 
     if boolean_function in [majority, minority]: result = to_outputs(result, list(dict.fromkeys(user_input)))
     
@@ -91,9 +92,9 @@ def fourier_coefficients(inputs, bool_func_values):
     boolean_products = itertools.product([0,1], repeat=len(inputs[0]))
     
     for subset in boolean_products:
-        subset = np.array(subset)
+        subset          = np.array(subset)
         subset_products = np.prod(np.power(inputs, subset), axis=1)
-        coefficient = np.mean(subset_products * bool_func_values)
+        coefficient     = np.mean(subset_products * bool_func_values)
         coefficients[tuple(subset)] = coefficient
 
     return coefficients
@@ -144,6 +145,5 @@ if __name__ == "__main__":
         'minority': minority,
         'ratio'   : ratio
     }
-
     
     main(args)
