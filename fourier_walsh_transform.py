@@ -38,9 +38,8 @@ def main(args):
         print('Please enter a comma-seperated list containing only two distinct elements.\n')
         user_input = input('Example: x,y,x,x,y \n')
         user_input = list(user_input.split(','))
-        elements = list(dict.fromkeys(user_input))
 
-        if not validate_inputs(boolean_function, elements):
+        if not validate_inputs(boolean_function, user_input):
             print('Please type the boolean function you wish to use. (Default is "majority")') 
             user_input = input('To exit type "0" \n')
             continue
@@ -68,19 +67,18 @@ def ratio(x):
 #Fourier-Walsh transform
 def fourer_walsh_transform(user_input, boolean_function):
     
-    input_list = to_bool(user_input, list(dict.fromkeys(user_input)))
-    inputs = list(itertools.product([1,-1], repeat=len(input_list)))
-    bool_func_values = [boolean_function(list(input_values)) for input_values in inputs]
-    coefficients = fourier_coefficients(inputs, bool_func_values)
+    input_length = len(user_input)
+    converted_input = to_bool(user_input, list(dict.fromkeys(user_input)))
+    inputs_ = list(itertools.product([1,-1], repeat=input_length))
+    bool_func_values = [boolean_function(list(input_values)) for input_values in inputs_]
+    coefficients = fourier_coefficients(inputs_, bool_func_values)
 
     result = 0
     for subset, coefficient in coefficients.items():
-        subset_prod = np.prod([input_list[i] if subset[i] == 1 else 1 for i in range(len(input_list))])
+        subset_prod = np.prod([converted_input[i] if subset[i] == 1 else 1 for i in range(input_length)])
         result += subset_prod * coefficient
 
-    output_conversion = args.output_conversion
-    if boolean_function in [majority, minority]: output_conversion = True
-    if output_conversion: result = to_outputs(result, list(dict.fromkeys(user_input)))
+    if boolean_function in [majority, minority]: result = to_outputs(result, list(dict.fromkeys(user_input)))
     
     result = f'\nThe answer is {result}'
     if args.verbose: result += f'\nThe formula is: {formula_string_builder(coefficients)}'
@@ -107,7 +105,9 @@ def to_bool(inputs, elements):
 def to_outputs(value, elements):
     return elements[0] if value == 1.0 else elements[1]
 
-def validate_inputs(boolean_function, elements):
+def validate_inputs(boolean_function, user_input):
+
+    elements = list(dict.fromkeys(user_input))
     if boolean_function not in boolean_function_dict: 
         print('That is not a valid boolean function.')
         return False
@@ -136,9 +136,8 @@ def formula_string_builder(coefficients):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-
     parser.add_argument('-v', '--verbose', action='store_true', help='Output verbosity')
-    parser.add_argument('-o', '--output_conversion', action='store_true', help='Output conversion to original values')
+    args = parser.parse_args()
 
     boolean_function_dict ={
         'majority': majority,
@@ -146,5 +145,5 @@ if __name__ == "__main__":
         'ratio'   : ratio
     }
 
-    args = parser.parse_args()
+    
     main(args)
