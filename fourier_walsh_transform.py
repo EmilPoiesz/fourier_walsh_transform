@@ -28,6 +28,7 @@ def main(args):
     print('minority => minority([T,F,T]) = F') 
     print('ratio    => ratio([T,F,T,T])  = 0.75')
     print('weighted sum => weighted_sum([T,F,T]) = #T + 2#F = 4')
+    print('majority sum => majority_sum([T,F,T]) = #T - #F = 1')
     print('Please type the boolean function you wish to use. (Default is "majority")')
 
     user_input = input('To exit type "0" \n')
@@ -71,6 +72,9 @@ def weighted_sum(x):
     if len(elements) == 1: return sum(x)
     a, b = elements
     return x.count(a) + (2*x.count(b))
+
+def majority_sum(x):
+    return sum(x)
     
 
 #Fourier-Walsh transform
@@ -152,7 +156,8 @@ if __name__ == "__main__":
         'majority'    : majority,
         'minority'    : minority,
         'ratio'       : ratio,
-        'weighted sum': weighted_sum
+        'weighted sum': weighted_sum,
+        'majority sum': majority_sum
     }
     
     main(args)
