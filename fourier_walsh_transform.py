@@ -29,6 +29,7 @@ def main(args):
     print('ratio    => ratio([T,F,T,T])  = 0.75')
     print('weighted sum => weighted_sum([T,F,T]) = #T + 2#F = 4')
     print('majority sum => majority_sum([T,F,T]) = #T - #F = 1')
+    print('three in a row => three_in_a_row([T,F,F,F,T]) = T')
     print('Please type the boolean function you wish to use. (Default is "majority")')
 
     user_input = input('To exit type "0" \n')
@@ -75,6 +76,12 @@ def weighted_sum(x):
 
 def majority_sum(x):
     return sum(x)
+
+def three_in_a_row(x):
+    if len(x) < 3: return -1
+    for i in range(2,len(x)):
+        if x[i] == x[i-1] and x[i] == x[i-2]: return 1
+    return -1
     
 
 #Fourier-Walsh transform
@@ -92,6 +99,7 @@ def fourer_walsh_transform(user_input, boolean_function):
         result += permutation_sign * coefficient
 
     if boolean_function in [majority, minority]: result = to_outputs(result, list(dict.fromkeys(user_input)))
+    if boolean_function in [three_in_a_row] : result = True if result == 1 else False
     
     result = f'\nThe answer is {result}'
     if args.verbose: result += f'\nThe formula is: {formula_string_builder(coefficients)}'
@@ -157,7 +165,8 @@ if __name__ == "__main__":
         'minority'    : minority,
         'ratio'       : ratio,
         'weighted sum': weighted_sum,
-        'majority sum': majority_sum
+        'majority sum': majority_sum,
+        'three in a row': three_in_a_row
     }
     
     main(args)
