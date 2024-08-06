@@ -92,14 +92,14 @@ def fourer_walsh_transform(user_input, boolean_function):
     permutation_results = [boolean_function(list(inputs)) for inputs in input_permutations]
     coefficients        = fourier_coefficients(input_permutations, permutation_results)
 
-    user_input = to_bool(user_input, list(dict.fromkeys(user_input))) #Convert input to {-1, 1}
+    user_input = input_to_int(user_input, list(dict.fromkeys(user_input))) #Convert input to {-1, 1}
     result     = 0
     for permutation, coefficient in coefficients.items():
         permutation_sign = np.prod([user_input[i] if permutation[i] == 1 else 1 for i in range(input_length)])
         result += permutation_sign * coefficient
 
-    if boolean_function in [majority, minority]: result = to_outputs(result, list(dict.fromkeys(user_input)))
-    if boolean_function in [three_in_a_row] : result = True if result == 1 else False
+    if boolean_function in [majority, minority]: result = int_to_output(result, list(dict.fromkeys(user_input)))
+    if boolean_function in [three_in_a_row]:     result = int_to_bool(result)
     
     result = f'\nThe answer is {result}'
     if args.verbose: result += f'\nThe formula is: {formula_string_builder(coefficients)}'
@@ -120,10 +120,14 @@ def fourier_coefficients(inputs, bool_func_values):
     return coefficients
 
 # Fourier-Walsh transform needs the boolean values to be interpreted as 1 or -1
-def to_bool(inputs, elements):
+def input_to_int(inputs, elements):
     return [1 if x == elements[0] else -1 for x in inputs]
 
-def to_outputs(value, elements):
+def int_to_bool(result):
+    if result == 1: return True
+    return False
+
+def int_to_output(value, elements):
     return elements[0] if value == 1.0 else elements[1]
 
 def validate_inputs(boolean_function, user_input):
