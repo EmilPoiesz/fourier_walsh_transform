@@ -30,6 +30,7 @@ def main(args):
     print('weighted sum => weighted_sum([T,F,T]) = #T + 2#F = 4')
     print('majority sum => majority_sum([T,F,T]) = #T - #F = 1')
     print('three in a row => three_in_a_row([T,F,F,F,T]) = T')
+    print('alternating => alternating([T,F,T,F,T]) = T')
     print('Please type the boolean function you wish to use. (Default is "majority")')
 
     user_input = input('To exit type "0" \n')
@@ -82,6 +83,12 @@ def three_in_a_row(x):
     for i in range(2,len(x)):
         if x[i] == x[i-1] and x[i] == x[i-2]: return 1
     return -1
+
+def alternating(x):
+    if len(x) == 1: return 1
+    for i in range(1, len(x)):
+        if x[i] == x[i-1]: return -1
+    return 1
     
 
 #Fourier-Walsh transform
@@ -98,8 +105,8 @@ def fourer_walsh_transform(user_input, boolean_function):
         permutation_sign = np.prod([user_input[i] if permutation[i] == 1 else 1 for i in range(input_length)])
         result += permutation_sign * coefficient
 
-    if boolean_function in [majority, minority]: result = int_to_output(result, list(dict.fromkeys(user_input)))
-    if boolean_function in [three_in_a_row]:     result = int_to_bool(result)
+    if boolean_function in [majority, minority]:          result = int_to_output(result, list(dict.fromkeys(user_input)))
+    if boolean_function in [three_in_a_row, alternating]: result = int_to_bool(result)
     
     result = f'\nThe answer is {result}'
     if args.verbose: result += f'\nThe formula is: {formula_string_builder(coefficients)}'
@@ -170,7 +177,8 @@ if __name__ == "__main__":
         'ratio'       : ratio,
         'weighted sum': weighted_sum,
         'majority sum': majority_sum,
-        'three in a row': three_in_a_row
+        'three in a row': three_in_a_row,
+        'alternating' : alternating 
     }
     
     main(args)
