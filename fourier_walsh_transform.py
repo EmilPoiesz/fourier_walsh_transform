@@ -97,12 +97,19 @@ def fourer_walsh_transform(user_input, boolean_function):
     input_length        = len(user_input)
     input_permutations  = list(itertools.product([1,-1], repeat=input_length))
     permutation_results = [boolean_function(list(inputs)) for inputs in input_permutations]
-    coefficients        = fourier_coefficients(input_permutations, permutation_results)
 
-    user_input = input_to_int(user_input, list(dict.fromkeys(user_input))) #Convert input to {-1, 1}
-    result     = 0
+    coefficients = {}
+    boolean_products = itertools.product([0,1], repeat=len(input_permutations[0]))
+    for subset in boolean_products:
+        subset          = np.array(subset)
+        subset_products = np.prod(np.power(input_permutations, subset), axis=1)
+        coefficient     = np.mean(subset_products * permutation_results)
+        coefficients[tuple(subset)] = coefficient
+
+    converted_input = input_to_int(user_input, list(dict.fromkeys(user_input))) #Convert input to {-1, 1}
+    result = 0
     for permutation, coefficient in coefficients.items():
-        permutation_sign = np.prod([user_input[i] if permutation[i] == 1 else 1 for i in range(input_length)])
+        permutation_sign = np.prod([converted_input[i] if permutation[i] == 1 else 1 for i in range(input_length)])
         result += permutation_sign * coefficient
 
     if boolean_function in [majority, minority]:          result = int_to_output(result, list(dict.fromkeys(user_input)))
@@ -112,19 +119,6 @@ def fourer_walsh_transform(user_input, boolean_function):
     if args.verbose: result += f'\nThe formula is: {formula_string_builder(coefficients)}'
 
     return result
-
-
-def fourier_coefficients(inputs, bool_func_values):
-    coefficients = {}
-    boolean_products = itertools.product([0,1], repeat=len(inputs[0]))
-    
-    for subset in boolean_products:
-        subset          = np.array(subset)
-        subset_products = np.prod(np.power(inputs, subset), axis=1)
-        coefficient     = np.mean(subset_products * bool_func_values)
-        coefficients[tuple(subset)] = coefficient
-
-    return coefficients
 
 # Fourier-Walsh transform needs the boolean values to be interpreted as 1 or -1
 def input_to_int(inputs, elements):
@@ -138,7 +132,6 @@ def int_to_output(value, elements):
     return elements[0] if value == 1.0 else elements[1]
 
 def validate_inputs(boolean_function, user_input):
-
     elements = list(dict.fromkeys(user_input))
     if boolean_function not in boolean_function_dict: 
         print('That is not a valid boolean function.')
@@ -150,7 +143,6 @@ def validate_inputs(boolean_function, user_input):
     return True
 
 def formula_string_builder(coefficients):
-    
     unique_coefficients = {}
     for subset in coefficients.keys():
         if sum(subset) not in unique_coefficients.keys():
