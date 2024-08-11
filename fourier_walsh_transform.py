@@ -55,36 +55,36 @@ def main(args):
         user_input = input('\nTo exit, type "0", or try again. Which boolean function do you wish to use? \n')
 
 # Boolean functions
-def majority(x):
+def majority(x: list) -> int:
     assert len(x) % 2 == 1
     return 1 if sum(x) > 0 else -1
 
-def minority(x):
+def minority(x: list):
     assert len(x) % 2 == 1
     return 1 if sum(x) < 0 else -1
 
-def ratio(x):
+def ratio(x) -> float:
     elements = list(dict.fromkeys(x))
     if len(elements) == 1: return 1.0
     a, _ = elements
     return x.count(a) / len(x)
 
-def weighted_sum(x):
+def weighted_sum(x: list) -> int:
     elements = list(dict.fromkeys(x))
     if len(elements) == 1: return sum(x)
     a, b = elements
     return x.count(a) + (2*x.count(b))
 
-def majority_sum(x):
+def majority_sum(x: list) -> int:
     return sum(x)
 
-def three_in_a_row(x):
+def three_in_a_row(x: list) -> int:
     if len(x) < 3: return -1
     for i in range(2,len(x)):
         if x[i] == x[i-1] and x[i] == x[i-2]: return 1
     return -1
 
-def alternating(x):
+def alternating(x: list) -> int:
     if len(x) == 1: return 1
     for i in range(1, len(x)):
         if x[i] == x[i-1]: return -1
@@ -92,7 +92,7 @@ def alternating(x):
     
 
 #Fourier-Walsh transform
-def fourer_walsh_transform(user_input, boolean_function):
+def fourer_walsh_transform(user_input: str, boolean_function) -> str:
     
     input_length        = len(user_input)
     input_permutations  = list(itertools.product([1,-1], repeat=input_length))
@@ -142,7 +142,7 @@ def validate_inputs(boolean_function, user_input):
     
     return True
 
-def formula_string_builder(coefficients):
+def formula_string_builder(coefficients: dict):
     unique_coefficients = {}
     for subset in coefficients.keys():
         if sum(subset) not in unique_coefficients.keys():
