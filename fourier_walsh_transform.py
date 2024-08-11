@@ -63,7 +63,7 @@ def minority(x: list):
     assert len(x) % 2 == 1
     return 1 if sum(x) < 0 else -1
 
-def ratio(x) -> float:
+def ratio(x: list) -> float:
     elements = list(dict.fromkeys(x))
     if len(elements) == 1: return 1.0
     a, _ = elements
@@ -121,17 +121,17 @@ def fourer_walsh_transform(user_input: str, boolean_function) -> str:
     return result
 
 # Fourier-Walsh transform needs the boolean values to be interpreted as 1 or -1
-def input_to_int(inputs, elements):
+def input_to_int(inputs: list, elements: list) -> int:
     return [1 if x == elements[0] else -1 for x in inputs]
 
-def int_to_bool(result):
+def int_to_bool(result:int) -> bool:
     if result == 1: return True
     return False
 
-def int_to_output(value, elements):
+def int_to_output(value: float, elements:list) -> str:
     return elements[0] if value == 1.0 else elements[1]
 
-def validate_inputs(boolean_function, user_input):
+def validate_inputs(boolean_function, user_input: str) -> bool:
     elements = list(dict.fromkeys(user_input))
     if boolean_function not in boolean_function_dict: 
         print('That is not a valid boolean function.')
@@ -142,7 +142,7 @@ def validate_inputs(boolean_function, user_input):
     
     return True
 
-def formula_string_builder(coefficients: dict):
+def formula_string_builder(coefficients: dict) -> str:
     unique_coefficients = {}
     for subset in coefficients.keys():
         if sum(subset) not in unique_coefficients.keys():
